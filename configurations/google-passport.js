@@ -1,11 +1,9 @@
-const admin = require("firebase-admin");
-
 const serviceAccount = require("./service-account.json");
 
-admin.initializeApp({
+/* admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://textaify-5d7b6-default-rtdb.firebaseio.com",
-});
+}); */
 
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
