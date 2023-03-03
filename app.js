@@ -29,7 +29,6 @@ application.use("/auth", authRoutes);
 application.get("/", (req, res) => {
   res.render("home");
 });
-
 /* application.listen(3000, () => {
   console.log("server up on 3000;");
 });
