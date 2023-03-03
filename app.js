@@ -1,49 +1,34 @@
 require("dotenv").config();
-//
 const express = require("express");
 const bodyParser = require("body-parser");
-c;
 const passport = require("passport");
-const { fetchUserByEmail, createUserInDatabase } = require("./userFile");
-var GoogleStrategy = require("passport-google-oauth20").Strategy;
-//
+const cookieSession = require("cookie-session");
+
+const authRoutes = require("./routes/auth-routes");
+const SuccessRoutes = require("./routes/success-routes");
+const GooglePassport = require("./configurations/google-passport");
+
 const application = express();
+
 application.use(bodyParser.json());
-application.use();
-application.use;
+application.use(bodyParser.urlencoded({ extended: true }));
+application.set("view engine", "ejs");
+application.use(express.static("public"));
+
+application.use(
+  cookieSession({
+    maxAge: 24 * 60 * 60 * 1000,
+    keys: [process.env.SESSION_API_KEY],
+  })
+);
+
 application.use(passport.initialize());
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "http://www.example.com/auth/google/xyz",
-    },
-    (accessToken, refreshToken, profile, cb) => {
-      // firebase functions here
-    }
-  )
-);
-
+application.use(passport.session());
+application.use("/success", SuccessRoutes);
+application.use("/auth", authRoutes);
 application.get("/", (req, res) => {
-  res.render("index");
+  res.render("home");
 });
-
-application.post("/", (req, res) => {});
-
-app.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile"] })
-);
-
-app.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  function (req, res) {
-    // Successful authentication, redirect home.
-    res.redirect("/");
-  }
-);
 
 application.listen(3000, () => {
   console.log("server up on 3000;");
