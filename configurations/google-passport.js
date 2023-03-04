@@ -1,10 +1,10 @@
-const serviceAccount = require("./service-account.json");
-
+// const serviceAccount = require("./service-account.json");
+const admin = require("firebase-admin");
 /* admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://textaify-5d7b6-default-rtdb.firebaseio.com",
-}); */
-
+});
+ */
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const keys = require("./keys");
@@ -26,7 +26,7 @@ passport.use(
     {
       clientID: keys.google.clientID,
       clientSecret: keys.google.clientSecret,
-      callbackURL: "http://localhost:3000/auth/google/redirect",
+      callbackURL: "https://auth.textaify.com/auth/google/redirect",
     },
     async (accessToken, refreshToken, profile, done) => {
       // Use Firebase Authentication REST API to obtain a Firebase ID token using the Google OAuth access token
@@ -41,7 +41,7 @@ passport.use(
           },
           body: JSON.stringify({
             postBody: data,
-            requestUri: "http://localhost:3000/auth/google",
+            requestUri: "https://auth.textaify.com/auth/google",
             returnIdpCredential: true,
             returnSecureToken: true,
           }),

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const authCheck = (req, res, next) => {
+  console.log(req.user);
   if (!req.session.emailuser && !req.user) {
     res.redirect("/");
   } else {
