@@ -1,19 +1,12 @@
 const keys = require("./keys");
+const axios = require("axios");
+const admin = require("firebase-admin");
 
-const NewUserAuth = async (data1, data2) => {
-  const abc = await fetch(
-    "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=" +
-      keys.firebase.apiKey,
-    {
-      method: "POST",
-      body: JSON.stringify({
-        email: data1,
-        password: data2,
-        returnSecureToken: true,
-      }),
-    }
-  );
-  const firebaseUser = await abc.json();
-  return firebaseUser;
+const NewUserAuth = async (data1, data2, data3) => {
+  await admin
+    .auth()
+    .createUser({ email: data1, password: data2, displayName: data3 });
+  await admin.auth().generateEmailVerificationLink(data1);
+  return;
 };
 module.exports = { NewUserAuth };

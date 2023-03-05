@@ -14,23 +14,78 @@
       href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,600;1,600&display=swap"
       rel="stylesheet"
     />
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script>
+      $(function () {
+        const abc = (formId, route, extrafields = {}) => {
+          $(formId + " .fa-spinner").show();
+          $(formId + " .btnTitle").hide();
+          $.post({
+            url: route,
+            data: JSON.stringify({
+              email: $(formId + " input[name='email']").val(),
+              password: $(formId + " input[name='password']").val(),
+              ...extrafields,
+            }),
+            contentType: "application/json",
+          })
+            .done(() =>
+              extrafields?.name
+                ? $(formId + " .alert")
+                    .text("Email verification link sent!")
+                    .slideDown()
+                : window.location.reload()
+            )
+            .fail((res) => {
+              $(formId + " .alert")
+                .text(res.responseText)
+                .slideDown();
+              $(formId + " .fa-spinner").hide();
+              $(formId + " .btnTitle").show();
+            });
+        };
+        $("#sign-in-form").submit((e) => {
+          e.preventDefault();
+          abc("#sign-in-form", "/auth/email");
+        });
+        $("#sign-up-form").submit((e) => {
+          e.preventDefault();
+          abc("#sign-up-form", "/auth/register", {
+            name: $("#sign-up-form input[name='name']").val(),
+          });
+        });
+      });
+    </script>
   </head>
 
   <body>
     <div class="container">
       <div class="signin-signup">
-        <form action="/auth/email" method="post" class="sign-in-form">
+        <form id="sign-in-form">
           <img src="/NewLogo.svg" alt="Logo" style="width: 100px" srcset="" />
-          <h2 class="title">Sign in</h2>
+          <!-- <h2 class="title">Sign in</h2> -->
+          <% if(unverfied){ %>
+          <div class="alert" style="display: block">
+            Please verify your email first
+          </div>
+          <% } else{ %>
+          <div class="alert"></div>
+          <% } %>
           <div class="input-field">
             <i class="fas fa-user"></i>
             <input type="text" placeholder="Email" name="email" />
           </div>
           <div class="input-field">
             <i class="fas fa-lock"></i>
-            <input type="text" placeholder="Password" name="password" />
+            <input type="password" placeholder="Password" name="password" />
           </div>
-          <input type="submit" value="Login" class="btn" />
+          <button type="submit" class="btn">
+            <i
+              class="fa fa-spinner"
+              style="margin: 0 5px; font-size: 20px; display: none"
+            ></i
+            ><span class="btnTitle">Login</span>
+          </button>
           <p class="" social-text>Or Sign in with social platform</p>
           <div class="social-media">
             <a href="/auth/google" class="social-icon"
@@ -41,12 +96,13 @@
             Don't have an account? <a id="sign-up-btn2">Sign up</a>
           </p>
         </form>
-        <form action="/auth/register" method="post" class="sign-up-form">
+        <form id="sign-up-form">
           <img src="/NewLogo.svg" alt="Logo" style="width: 100px" srcset="" />
-          <h2 class="title">Sign up</h2>
+          <!-- <h2 class="title">Sign up</h2> -->
+          <div class="alert"></div>
           <div class="input-field">
             <i class="fas fa-user"></i>
-            <input type="text" placeholder="Username" name="username" />
+            <input type="text" placeholder="Name" name="name" />
           </div>
           <div class="input-field">
             <i class="fas fa-lock"></i>
@@ -54,9 +110,15 @@
           </div>
           <div class="input-field">
             <i class="fas fa-lock"></i>
-            <input type="text" placeholder="Password" name="password" />
+            <input type="password" placeholder="Password" name="password" />
           </div>
-          <input type="submit" value="Sign up" class="btn" />
+          <button type="submit" class="btn">
+            <i
+              class="fa fa-spinner"
+              style="margin: 0 5px; font-size: 20px; display: none"
+            ></i
+            ><span class="btnTitle">Sign up</span>
+          </button>
           <p class="" social-text>Or Sign in with social platform</p>
           <div class="social-media">
             <a href="/auth/google" class="social-icon"

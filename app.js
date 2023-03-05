@@ -4,9 +4,11 @@ const passport = require("passport");
 const cookieSession = require("cookie-session");
 const path = require("path");
 const authRoutes = require("./routes/auth-routes");
-const SuccessRoutes = require("./routes/success-routes");
-const GooglePassport = require("./configurations/google-passport");
+const reqRoutes = require("./routes/req-routes");
 const application = express();
+const { authCheck2, authCheck } = require("./configurations/middlewares");
+const admin = require("firebase-admin");
+
 application.use(bodyParser.json());
 application.use(bodyParser.urlencoded({ extended: true }));
 application.set("view engine", "ejs");
@@ -14,21 +16,24 @@ application.set("views", path.join(__dirname, "views/"));
 application.use(
   cookieSession({
     name: "__session",
+    
+    domain: "auth.textaify.com",
     maxAge: 24 * 60 * 60 * 1000,
     keys: ["notsoSurewhythiskeyisherebutitiswhatitis"],
   })
 );
-// application.use(cookieParser(process.env.COOKIE_KEY));
-
 application.use(passport.initialize());
 application.use(passport.session());
-application.use("/success", SuccessRoutes);
 application.use("/auth", authRoutes);
-application.get("/", (req, res) => {
-  res.render("home");
+application.use("/req", authCheck2, reqRoutes);
+application.get("/", authCheck, async (req, res) => {
+  console.log(req.session);
+  if (req.session) {
+    const user = await admin.auth().getUser(req.session.uid);
+    res.render("loginSuccess", { ...user });
+  }
+  console.log(req.url);
+  res.redirect(req.url);
 });
-/* application.listen(3000, () => {
-  console.log("server up on 3000;");
-});
- */
+
 exports.application = application;

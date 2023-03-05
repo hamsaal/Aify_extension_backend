@@ -5,6 +5,7 @@ const admin = require("firebase-admin");
   databaseURL: "https://textaify-5d7b6-default-rtdb.firebaseio.com",
 });
  */
+const axios = require("axios");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const keys = require("./keys");
@@ -13,12 +14,14 @@ passport.serializeUser((user, done) => {
   done(null, user.idToken);
 });
 passport.deserializeUser((idToken, done) => {
+  console.log(idToken);
   admin
     .auth()
     .verifyIdToken(idToken)
     .then((user) => {
       done(null, user);
     });
+  // .verifySessionCookie()
 });
 
 passport.use(
@@ -29,25 +32,26 @@ passport.use(
       callbackURL: "https://auth.textaify.com/auth/google/redirect",
     },
     async (accessToken, refreshToken, profile, done) => {
+      console.log("Access Token", accessToken);
       // Use Firebase Authentication REST API to obtain a Firebase ID token using the Google OAuth access token
       const data = "access_token=" + accessToken + "&providerId=google.com";
-      const response = await fetch(
+      const response = await axios.post(
         "https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=" +
           keys.firebase.apiKey,
         {
-          method: "POST",
+          postBody: data,
+          requestUri: "https://auth.textaify.com/auth/google",
+          returnIdpCredential: true,
+          returnSecureToken: true,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            postBody: data,
-            requestUri: "https://auth.textaify.com/auth/google",
-            returnIdpCredential: true,
-            returnSecureToken: true,
-          }),
         }
       );
-      const jsonRes = await response.json();
+      const jsonRes = response.data;
+      // admin.auth().createSessionCookie(jsonRes.idToken);
       done(null, jsonRes);
     }
   )
