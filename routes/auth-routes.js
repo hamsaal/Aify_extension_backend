@@ -11,18 +11,16 @@ router.post("/email", async (req, res) => {
     const UserData = await emailAuth(req.body.email, req.body.password);
     const now = admin.firestore.Timestamp.now().toDate();
     const oneHourLater = new Date(now.getTime() + 3400 * 1000);
-    const payload = {
-      emailuser: UserData.idToken,
-      uid: UserData.localId,
-      refToken: UserData.refreshToken,
-      expiryTime: oneHourLater.toJSON(),
-    };
-    req.session = payload;
+    req.session.emailuser = UserData.idToken;
+    req.session.uid = UserData.localId;
+    req.session.refToken = UserData.refreshToken;
+    req.session.expiryTime = oneHourLater;
     // req.session.emailuser = JSON.stringify(payload);
     res.status(200).send("Success");
   } catch (e) {
-    const errorCode = e.response.data?.error?.message
-      ? e.response.data?.error?.message.split("_").join(" ")
+    console.log(e);
+    const errorCode = e.response?.data?.error?.message
+      ? e.response?.data?.error?.message.split("_").join(" ")
       : e.response?.data?.message
       ? e.response?.data?.message.split("_").join(" ")
       : e;
