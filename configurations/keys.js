@@ -7,4 +7,10 @@ module.exports = {
   firebase: {
     apiKey: "AIzaSyA4Re25HUER751uEbTn21Bzm9WqAtwmb60",
   },
+  options: {
+    // domain: "auth.textaify.com",
+    maxAge: 31 * 60 * 60 * 24 * 1000,
+    httpOnly: false,
+    secure: false,
+  },
 };

@@ -5,36 +5,32 @@ const passport = require("passport");
 const { NewUserAuth } = require("../configurations/newUser");
 const admin = require("firebase-admin");
 const { encrypt } = require("../configurations/imp-func");
+const keys = require("../configurations/keys");
 router.post("/email", async (req, res) => {
   try {
     const UserData = await emailAuth(req.body.email, req.body.password);
     const now = admin.firestore.Timestamp.now().toDate();
-    const oneHourLater = new Date(now.getTime() + 3400 * 1000);
+    const oneHourLater = new Date(
+      now.getTime() + (parseInt(UserData.expiresIn) - 200) * 1000
+    );
     req.session.emailuser = UserData.idToken;
     req.session.uid = UserData.localId;
     req.session.refToken = UserData.refreshToken;
     req.session.expiryTime = oneHourLater;
-    const expiresIn = 31 * 60 * 60 * 24 * 1000;
-    const options = {
-      domain: "auth.textaify.com",
-      maxAge: expiresIn,
-      httpOnly: false,
-      secure: false,
-    };
-    console.log(encrypt(UserData.idToken));
+
     res
       .status(200)
-      .cookie("userToken", encrypt(UserData.idToken), options)
-      .cookie("uid", encrypt(UserData.localId), options)
-      .cookie("refToken", encrypt(UserData.refreshToken), options)
-      .cookie("expiryTime", oneHourLater.toJSON(), options)
+      .cookie("userToken", encrypt(UserData.idToken), keys.options)
+      .cookie("uid", encrypt(UserData.localId), keys.options)
+      .cookie("refToken", encrypt(UserData.refreshToken), keys.options)
+      .cookie("expiryTime", oneHourLater.getTime(), keys.options)
       .send("Success");
   } catch (e) {
     console.log(e);
     const errorCode = e.response?.data?.error?.message
       ? e.response?.data?.error?.message.split("_").join(" ")
       : e.response?.data?.message
-      ? e.response?.data?.message.split("_").join(" ")
+      ? e.response?.data?.message?.split("_").join(" ")
       : e;
     res.status(400).send(errorCode);
   }
@@ -54,7 +50,9 @@ router.post("/register", async (req, res) => {
     req.session = payload; */
     res.status(200).send("Success");
   } catch (e) {
-    res.status(400).send("Error while signing up.");
+    const errorCode = e.errorInfo?.message ?? e;
+    console.log(errorCode);
+    res.status(400).send(errorCode);
   }
 });
 
@@ -67,7 +65,16 @@ router.get(
   "/google/redirect",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect("/");
+    const now = admin.firestore.Timestamp.now().toDate();
+    const oneHourLater = new Date(
+      now.getTime() + (parseInt(req.user.expiresIn) - 200) * 1000
+    );
+    res
+      .cookie("userToken", encrypt(req.user.idToken), keys.options)
+      .cookie("uid", encrypt(req.user.localId), keys.options)
+      .cookie("refToken", encrypt(req.user.refreshToken), keys.options)
+      .cookie("expiryTime", oneHourLater.getTime(), keys.options)
+      .redirect("/");
   }
 );
 

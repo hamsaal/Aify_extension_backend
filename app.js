@@ -11,6 +11,8 @@ const application = express();
 var cors = require("cors");
 const { authCheck2, authCheck } = require("./configurations/middlewares");
 const admin = require("firebase-admin");
+const keys = require("./configurations/keys");
+const { encrypt } = require("./configurations/imp-func");
 // application.set("trust proxy", 3);
 application.use(cors({ origin: true, credentials: true }));
 application.use(bodyParser.json());
@@ -26,12 +28,7 @@ application.use(
     secret: "My fuciogjedinf dsaiodj8921389ds.ds",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      maxAge: 31 * 24 * 60 * 60 * 1000,
-      secure: false,
-      domain: "auth.textaify.com",
-      httpOnly: false,
-    },
+    cookie: keys.options,
   })
 );
 application.use(passport.initialize());

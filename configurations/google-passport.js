@@ -17,7 +17,7 @@ passport.use(
     {
       clientID: keys.google.clientID,
       clientSecret: keys.google.clientSecret,
-      callbackURL: "https://auth.textaify.com/auth/google/redirect",
+      callbackURL: "http://localhost:5000/auth/google/redirect",
       scope: ["profile", "email", "openid"],
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -29,7 +29,7 @@ passport.use(
           keys.firebase.apiKey,
         {
           postBody: data,
-          requestUri: "https://auth.textaify.com/auth/google",
+          requestUri: "http://localhost:5000/auth/google",
           returnIdpCredential: true,
           returnSecureToken: true,
         },

@@ -6,6 +6,6 @@ router.get("/", (req, res) => {
 });
 router.post("/chat", async (req, res) => {
   const resAI = await reqAI(req.body, req.uid);
-  res.status(resAI.code).send(resAI.content);
+  res.status(resAI.code).json({ content: resAI.content, ...req.expPayload });
 });
 module.exports = router;
