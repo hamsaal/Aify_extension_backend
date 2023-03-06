@@ -1,27 +1,15 @@
-// const serviceAccount = require("./service-account.json");
-const admin = require("firebase-admin");
-/* admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://textaify-5d7b6-default-rtdb.firebaseio.com",
-});
- */
 const axios = require("axios");
+const admin = require("firebase-admin");
+
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const keys = require("./keys");
 
 passport.serializeUser((user, done) => {
-  done(null, user.idToken);
+  done(null, user);
 });
-passport.deserializeUser((idToken, done) => {
-  console.log(idToken);
-  admin
-    .auth()
-    .verifyIdToken(idToken)
-    .then((user) => {
-      done(null, user);
-    });
-  // .verifySessionCookie()
+passport.deserializeUser((user, done) => {
+  done(null, user);
 });
 
 passport.use(
@@ -30,6 +18,7 @@ passport.use(
       clientID: keys.google.clientID,
       clientSecret: keys.google.clientSecret,
       callbackURL: "https://auth.textaify.com/auth/google/redirect",
+      scope: ["profile", "email", "openid"],
     },
     async (accessToken, refreshToken, profile, done) => {
       console.log("Access Token", accessToken);

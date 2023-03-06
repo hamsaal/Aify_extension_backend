@@ -5,6 +5,7 @@ const expressSession = require("express-session");
 const FirestoreStore = require("connect-session-firebase")(expressSession);
 const path = require("path");
 const authRoutes = require("./routes/auth-routes");
+const GooglePassport = require("./configurations/google-passport");
 const reqRoutes = require("./routes/req-routes");
 const application = express();
 var cors = require("cors");
@@ -23,11 +24,12 @@ application.use(
     }),
     name: "__session",
     secret: "My fuciogjedinf dsaiodj8921389ds.ds",
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     cookie: {
       maxAge: 31 * 24 * 60 * 60 * 1000,
       secure: false,
+      domain: "auth.textaify.com",
       httpOnly: false,
     },
   })
@@ -36,9 +38,23 @@ application.use(passport.initialize());
 application.use(passport.session());
 application.use("/auth", authRoutes);
 application.use("/req", authCheck2, reqRoutes);
+
+application.get("/logout", authCheck, async (req, res) => {
+  req.session.destroy();
+  res
+    .clearCookie("__session")
+    .clearCookie("userToken")
+    .clearCookie("uid")
+    .clearCookie("refToken")
+    .clearCookie("expiryTime")
+    .redirect("/");
+});
+
 application.get("/", authCheck, async (req, res) => {
   if (req.session) {
-    const user = await admin.auth().getUser(req.session.uid);
+    const user = await admin
+      .auth()
+      .getUser(req.session.uid ?? req.user.localId);
     res.render("loginSuccess", { ...user });
   } else {
     res.redirect(req.url);

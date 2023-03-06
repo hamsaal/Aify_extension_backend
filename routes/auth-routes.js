@@ -4,8 +4,7 @@ const { emailAuth } = require("../configurations/email");
 const passport = require("passport");
 const { NewUserAuth } = require("../configurations/newUser");
 const admin = require("firebase-admin");
-const { capitalizeFirstLetter } = require("../configurations/imp-func");
-
+const { encrypt } = require("../configurations/imp-func");
 router.post("/email", async (req, res) => {
   try {
     const UserData = await emailAuth(req.body.email, req.body.password);
@@ -15,8 +14,21 @@ router.post("/email", async (req, res) => {
     req.session.uid = UserData.localId;
     req.session.refToken = UserData.refreshToken;
     req.session.expiryTime = oneHourLater;
-    // req.session.emailuser = JSON.stringify(payload);
-    res.status(200).send("Success");
+    const expiresIn = 31 * 60 * 60 * 24 * 1000;
+    const options = {
+      domain: "auth.textaify.com",
+      maxAge: expiresIn,
+      httpOnly: false,
+      secure: false,
+    };
+    console.log(encrypt(UserData.idToken));
+    res
+      .status(200)
+      .cookie("userToken", encrypt(UserData.idToken), options)
+      .cookie("uid", encrypt(UserData.localId), options)
+      .cookie("refToken", encrypt(UserData.refreshToken), options)
+      .cookie("expiryTime", oneHourLater.toJSON(), options)
+      .send("Success");
   } catch (e) {
     console.log(e);
     const errorCode = e.response?.data?.error?.message

@@ -5,7 +5,7 @@ router.get("/", (req, res) => {
   res.send("Hello");
 });
 router.post("/chat", async (req, res) => {
-  const resAI = await reqAI(req.body, req.session.uid);
-  return res.status(resAI.code).send(resAI.content);
+  const resAI = await reqAI(req.body, req.uid);
+  res.status(resAI.code).send(resAI.content);
 });
 module.exports = router;
