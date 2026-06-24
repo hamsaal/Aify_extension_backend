@@ -1,6 +1,7 @@
 const admin = require("firebase-admin");
 const CryptoJS = require("crypto-js");
 const axios = require("axios");
+const keys = require("./keys");
 
 const verifier = async (token, uid) => {
   const appchecker = await admin.auth().verifyIdToken(token);

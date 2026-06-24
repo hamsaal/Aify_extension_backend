@@ -1,0 +1,26 @@
+{
+  "name": "aify-extension-backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "test": "jasmine",
+    "test:watch": "jasmine --watch"
+  },
+  "devDependencies": {
+    "jasmine": "^5.1.0"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "body-parser": "^2.3.0",
+    "connect-session-firebase": "^11.0.0",
+    "cors": "^2.8.6",
+    "crypto-js": "^4.2.0",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "firebase-admin": "^14.0.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  }
+}
